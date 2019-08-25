@@ -35,25 +35,36 @@ class App extends Component {
     }
   }
 
-  onChange = ({value}) => {
+  onChange = ({ value }) => {
     this.setState({
       search: value
-    })
-  }
+    });
+  };
+
+  filterBrands = ({ search, brands }) => {
+    return brands.filter(brand => {
+      return (
+        brand.name.toLowerCase().includes(search.toLowerCase()) ||
+        brand.description.toLowerCase().includes(search.toLowerCase())
+      );
+    });
+  };
 
   render() {
-    const { brands, search } = this.state;
+    const { search } = this.state;
     return (
       <Container>
         <Box display="flex" justifyContent="center" marginTop={4}>
-          <SearchField 
+          <SearchField
             id="searchField"
             accessibilityLabel="Brands Search Field"
             onChange={this.onChange}
+            value={search}
             placeholder="Search Brands"
           />
           <Box margin={2}>
-            <Icon icon="filter"
+            <Icon
+              icon="filter"
               color={search ? 'orange' : 'gray'}
               size={20}
               accessibilityLabel="Filter"
@@ -66,7 +77,7 @@ class App extends Component {
           </Heading>
         </Box>
         <Box shape="rounded" wrap display="flex" justifyContent="around">
-          {brands.map(brand => (
+          {this.filterBrands(this.state).map(brand => (
             <Box paddingY={4} margin={2} width={200} key={brand.id}>
               <Card
                 image={
