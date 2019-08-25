@@ -1,4 +1,5 @@
 import React from 'react';
+import {calcPrice} from '../utils/index'
 import { Box, Heading, Text, IconButton, Image, Card, Button, Mask } from 'gestalt';
 import { Link } from 'react-router-dom';
 import Strapi from 'strapi-sdk-javascript/build/main';
@@ -54,6 +55,10 @@ class Brews extends React.Component {
       updatedItems[alreadyInCart].quantity += 1;
       this.setState({ cartItems: updatedItems });
     }
+  };
+  deleteItemFromCart = itemToDelete => {
+    const filteredItems = this.state.cartItems.filter(item => item._id !== itemToDelete);
+    this.setState({ cartItems: filteredItems });
   };
   render() {
     const { brews, brand, cartItems } = this.state;
@@ -137,6 +142,7 @@ class Brews extends React.Component {
                     icon="cancel"
                     size="sm"
                     iconColor="red"
+                    onClick={() => this.deleteItemFromCart(item._id)}
                   />
                 </Box>
               ))}
@@ -145,7 +151,7 @@ class Brews extends React.Component {
                 <Box margin={2}>
                   {cartItems.length === 0 && <Text color="red">Please select some items></Text>}
                 </Box>
-                <Text size="lg">Total: $5.99</Text>
+                <Text size="lg">Total: {calcPrice(cartItems)}</Text>
                 <Text>
                   <Link to="/checkout">Checkout</Link>
                 </Text>
