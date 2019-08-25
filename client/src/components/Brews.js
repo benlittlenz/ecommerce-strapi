@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Heading, Text, Image, Card, Button } from 'gestalt';
+import { Box, Heading, Text, Image, Card, Button, Mask } from 'gestalt';
+import { Link } from 'react-router-dom';
 import Strapi from 'strapi-sdk-javascript/build/main';
 
 const apiURL = process.env.API_URL || 'http://localhost:1337';
@@ -8,7 +9,8 @@ const strapi = new Strapi(apiURL);
 class Brews extends React.Component {
   state = {
     brews: [],
-    brand: ''
+    brand: '',
+    cartItems: []
   };
   async componentDidMount() {
     try {
@@ -39,8 +41,22 @@ class Brews extends React.Component {
       console.errror(err);
     }
   }
+  addToCart = brew => {
+    const alreadyInCart = this.state.cartItems.findIndex(item => item._id === brew._id);
+    if(alreadyInCart === -1) {
+        const updatedItems = this.state.cartItems.concat({
+            ...brew,
+            quantity: 1
+        })
+        this.setState({ cartItems: updatedItems })
+    } else {
+        const updatedItems = [...this.state.cartItems]
+        updatedItems[alreadyInCart].quantity += 1;
+        this.setState({ cartItems: updatedItems })
+    }
+};
   render() {
-    const { brews, brand } = this.state;
+    const { brews, brand, cartItems } = this.state;
     return (
       <Box marginTop={4} display="flex" justifyContent="center" alignItems="start">
         <Box display="flex" direction="column" alignItems="center">
@@ -89,7 +105,11 @@ class Brews extends React.Component {
                     <Text color="orchid">${brew.price}</Text>
                     <Box marginTop={2}>
                       <Text bold size="xl">
-                        <Button color="blue" text="Add to Cart" />
+                        <Button
+                          onClick={() => this.addToCart(brew)}
+                          color="blue"
+                          text="Add to Cart"
+                        />
                       </Text>
                     </Box>
                   </Box>
@@ -97,6 +117,27 @@ class Brews extends React.Component {
               </Box>
             ))}
           </Box>
+        </Box>
+        <Box marginTop={2} marginLeft={8}>
+          <Mask shape="rounded" wash>
+            <Box display="flex" direction="column" alignItems="center" padding={2}>
+              <Heading align="center" size="md">
+                Your Cart
+              </Heading>
+              <Text color="gray" italic>
+                {cartItems.length} items selected
+              </Text>
+              <Box display="flex" alignItems="center" direction="column">
+                <Box margin={2}>
+                  {cartItems.length === 0 && <Text color="red">Please select some items></Text>}
+                </Box>
+                <Text size="lg">Total: %5.99</Text>
+                <Text>
+                  <Link to="/checkout">Checkout</Link>
+                </Text>
+              </Box>
+            </Box>
+          </Mask>
         </Box>
       </Box>
     );

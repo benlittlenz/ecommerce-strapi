@@ -29,6 +29,7 @@ class App extends Component {
         }`
         }
       });
+      console.log("data");
       this.setState({
         brands: data.brands,
         loadingBrands: false
@@ -109,7 +110,7 @@ class App extends Component {
             </Box>
           ))}
         </Box>
-        {<Loader show={loadingBrands}/>}
+        {<Loader show={loadingBrands} />}
       </Container>
     );
   }
