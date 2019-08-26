@@ -1,5 +1,5 @@
 import React from 'react';
-import {calcPrice} from '../utils/index'
+import { calcPrice, setCart, getCart } from '../utils/index';
 import { Box, Heading, Text, IconButton, Image, Card, Button, Mask } from 'gestalt';
 import { Link } from 'react-router-dom';
 import Strapi from 'strapi-sdk-javascript/build/main';
@@ -36,7 +36,8 @@ class Brews extends React.Component {
       });
       this.setState({
         brews: data.brand.brews,
-        brand: data.brand.name
+        brand: data.brand.name,
+        cartItems: getCart()
       });
     } catch (err) {
       console.errror(err);
@@ -49,16 +50,16 @@ class Brews extends React.Component {
         ...brew,
         quantity: 1
       });
-      this.setState({ cartItems: updatedItems });
+      this.setState({ cartItems: updatedItems }, () => setCart(updatedItems));
     } else {
       const updatedItems = [...this.state.cartItems];
       updatedItems[alreadyInCart].quantity += 1;
-      this.setState({ cartItems: updatedItems });
+      this.setState({ cartItems: updatedItems }, () => setCart(updatedItems));
     }
   };
   deleteItemFromCart = itemToDelete => {
     const filteredItems = this.state.cartItems.filter(item => item._id !== itemToDelete);
-    this.setState({ cartItems: filteredItems });
+    this.setState({ cartItems: filteredItems }, () => setCart(filteredItems));
   };
   render() {
     const { brews, brand, cartItems } = this.state;
