@@ -1,45 +1,52 @@
-import React, { Component } from 'react';
-import { Box, Button, Container, Heading, Text, TextField } from 'gestalt';
-import { setToken } from '../utils';
+import React from 'react';
+import { Container, Box, Button, Heading, Text, TextField } from 'gestalt';
 import ToastMessage from './ToastMessage';
 import Strapi from 'strapi-sdk-javascript/build/main';
-import ToastMsg from './ToastMessage';
 
-const apiUrl = process.env.API_URL || 'http://localhost:1337';
-const strapi = new Strapi(apiUrl);
+const apiURL = process.env.API_URL || 'http://localhost:1337';
+const strapi = new Strapi(apiURL);
 
-class Signup extends Component {
+class Signup extends React.Component {
   state = {
     username: '',
     email: '',
     password: '',
     toast: false,
-    toastMessage: ''
+    toastMessage: '',
+    loading: false
   };
 
   handleChange = ({ event, value }) => {
     event.persist();
-    this.setState({
-      [event.target.name]: value
-    });
+    this.setState({ [event.target.name]: value });
   };
 
-  handleSubmit = event => {
+  handleSubmit = async event => {
     event.preventDefault();
 
-    if (this.isFormEmpty()) {
-      this.showToast('Fill in all feilds');
-    }
-  };
+    const { username, email, password } = this.state;
 
-  showToast = toastMessage => {
-    this.setState({
-      toast: true,
-      toastMessage
-    });
-    setTimeout(() => {
-      this.setState({ toast: false, toastMessage: '' });
-    }, 5000);
+    if (this.isFormEmpty(this.state)) {
+      this.showToast('Fill in all fields');
+      return;
+    }
+    try {
+      //set loading to true
+      this.setState({ loading: true });
+      //make request to register user with strapi
+      const res = await strapi.register(username, email, password);
+      //set loading to false
+      this.setState({ loading: false });
+      console.log(res);
+      //put token into local storage
+
+      //redirect to homepage
+      this.redirectUser('/');
+    } catch (err) {
+      //loading to false
+      this.setState({ loading: false });
+      this.showToast(err.message);
+    }
   };
 
   redirectUser = path => this.props.history.push(path);
@@ -48,8 +55,14 @@ class Signup extends Component {
     return !username || !email || !password;
   };
 
+  showToast = toastMessage => {
+    this.setState({ toast: true, toastMessage });
+    setTimeout(() => this.setState({ toast: false, toastMessage: '' }), 5000);
+  };
+
   render() {
     const { toastMessage, toast } = this.state;
+
     return (
       <Container>
         <Box
@@ -73,44 +86,36 @@ class Signup extends Component {
             onSubmit={this.handleSubmit}
           >
             <Box marginBottom={2} display="flex" direction="column" alignItems="center">
-              <Heading color="midnight">Get Started</Heading>
+              <Heading color="midnight">Let's Get Started</Heading>
               <Text italic color="orchid">
                 Sign up to order some brews!
               </Text>
-              <Box marginTop={2}>
-                <TextField
-                  id="username"
-                  type="text"
-                  name="username"
-                  placeholder="Username"
-                  onChange={this.handleChange}
-                />
-              </Box>
-              <Box marginTop={2}>
-                <TextField
-                  id="email"
-                  type="email"
-                  name="email"
-                  placeholder="Email Address"
-                  onChange={this.handleChange}
-                />
-              </Box>
-              <Box marginTop={2}>
-                <TextField
-                  id="password"
-                  type="password"
-                  name="password"
-                  placeholder="Password"
-                  onChange={this.handleChange}
-                />
-              </Box>
-              <Box marginTop={2}>
-                <Button inline color="blue" text="Submit" type="submit" />
-              </Box>
             </Box>
+            <TextField
+              id="username"
+              type="text"
+              name="username"
+              placeholder="Username"
+              onChange={this.handleChange}
+            />
+            <TextField
+              id="email"
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              onChange={this.handleChange}
+            />
+            <TextField
+              id="password"
+              type="password"
+              name="password"
+              placeholder="Password"
+              onChange={this.handleChange}
+            />
+            <Button inline color="blue" text="Submit" type="submit" />
           </form>
         </Box>
-        <ToastMsg show={toast} message={toastMessage} />
+        <ToastMessage show={toast} message={toastMessage} />
       </Container>
     );
   }
