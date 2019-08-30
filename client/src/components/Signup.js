@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Box, Button, Heading, Text, TextField } from 'gestalt';
+import { setToken } from '../utils';
 import ToastMessage from './ToastMessage';
 import Strapi from 'strapi-sdk-javascript/build/main';
 
@@ -38,9 +39,7 @@ class Signup extends React.Component {
       //set loading to false
       this.setState({ loading: false });
       console.log(res);
-      //put token into local storage
-
-      //redirect to homepage
+      setToken(res.jwt);
       this.redirectUser('/');
     } catch (err) {
       //loading to false
@@ -61,7 +60,7 @@ class Signup extends React.Component {
   };
 
   render() {
-    const { toastMessage, toast } = this.state;
+    const { toastMessage, toast, loading } = this.state;
 
     return (
       <Container>
@@ -112,7 +111,7 @@ class Signup extends React.Component {
               placeholder="Password"
               onChange={this.handleChange}
             />
-            <Button inline color="blue" text="Submit" type="submit" />
+            <Button inline disabled={loading} color="blue" text="Submit" type="submit" />
           </form>
         </Box>
         <ToastMessage show={toast} message={toastMessage} />
