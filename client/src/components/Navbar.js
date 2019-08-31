@@ -1,14 +1,21 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { getToken } from '../utils';
+import { NavLink, withRouter } from 'react-router-dom';
+import { getToken, clearToken, clearCart } from '../utils';
 import { Box, Text, Heading, Image, Button } from 'gestalt';
 import './App.css';
 
-const Navbar = () => {
-  return getToken() !== null ? <AuthNav /> : <UnAuthNav />;
-};
+class Navbar extends React.Component {
+  handleSignOut = () => {
+    clearToken();
+    clearCart();
+    this.props.history.push('/');
+  };
+  render() {
+    return getToken() !== null ? <AuthNav handleSignOut={this.handleSignOut} /> : <UnAuthNav />;
+  }
+}
 
-const AuthNav = () => (
+const AuthNav = ({ handleSignOut }) => (
   <Box
     display="flex"
     alignItems="center"
@@ -33,7 +40,7 @@ const AuthNav = () => (
         </Heading>
       </NavLink>
     </Box>
-    <Button color="transparent" text="Sign Out" inline size="md" />
+    <Button onClick={handleSignOut} color="transparent" text="Sign Out" inline size="md" />
   </Box>
 );
 
@@ -68,14 +75,8 @@ const UnAuthNav = () => {
           Sign Up
         </Text>
       </NavLink>
-
-      <NavLink to="/signin">
-        <Text size="xl" color="white">
-          Checkout
-        </Text>
-      </NavLink>
     </Box>
   );
 };
 
-export default Navbar;
+export default withRouter(Navbar);
