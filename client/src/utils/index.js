@@ -5,22 +5,28 @@ export const calcPrice = items => {
   return `$${items.reduce((acc, item) => acc + item.quantity * item.price, 0).toFixed(2)}`;
 };
 
-
 export const setCart = (value, cartKey = CART_KEY) => {
-    if(localStorage) {
-        localStorage.setItem(cartKey, JSON.stringify(value));
-    }
-}
+  if (localStorage) {
+    localStorage.setItem(cartKey, JSON.stringify(value));
+  }
+};
 
 export const getCart = (cartKey = CART_KEY) => {
-    if(localStorage && localStorage.getItem(cartKey)) {
-        return JSON.parse(localStorage.getItem(cartKey));
-    }
-    return [];
-}
+  if (localStorage && localStorage.getItem(cartKey)) {
+    return JSON.parse(localStorage.getItem(cartKey));
+  }
+  return [];
+};
+
+export const getToken = (tokenKey = TOKEN_KEY) => {
+  if (localStorage && localStorage.getItem(tokenKey)) {
+    return JSON.parse(localStorage.getItem(tokenKey));
+  }
+  return null;
+};
 
 export const setToken = (val, tokenKey = TOKEN_KEY) => {
-    if(localStorage) {
-        localStorage.setItem(tokenKey, JSON.stringify(val));
-    }
-}
+  if (localStorage) {
+    localStorage.setItem(tokenKey, JSON.stringify(val));
+  }
+};
